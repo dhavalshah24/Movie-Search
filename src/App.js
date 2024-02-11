@@ -2,16 +2,6 @@ import React, { useState, useEffect } from "react";
 import MovieCard from "./MovieCard";
 import "./styles.css";
 
-const debounce = (func, delay) => {
-  let timer;
-  return function (...args) {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func.apply(this, args);
-    }, delay);
-  };
-};
-
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState('harry');
@@ -19,6 +9,7 @@ export default function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log("called")
         let resp = await fetch(
           `https://api.themoviedb.org/3/search/movie?api_key=263e31d1ad0c4defa8822787e614e716&language=en-US&query=${searchTerm}&page=1&include_adult=true`
         );
@@ -28,15 +19,16 @@ export default function App() {
         console.log("Error", error);
       }
     };
-    fetchData();
+
+    const timerId = setTimeout(() => {
+      fetchData();
+    }, 1000)
+
+    return () => clearTimeout(timerId);
   }, [searchTerm]);
 
-  const debouncedSearch = debounce((searchTerm) => {
-    setSearchTerm(searchTerm);
-  }, 100);
-
   const handleInputChange = (event) => {
-    debouncedSearch(event.target.value);
+    setSearchTerm(event.target.value);
   };
 
   return (
